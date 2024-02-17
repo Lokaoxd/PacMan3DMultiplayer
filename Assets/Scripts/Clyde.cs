@@ -50,7 +50,7 @@ public class Clyde : MonoBehaviour
 
         pointTarget = posicaoAleatoria;
 
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(Random.Range(5f, 12.5f));
         blockCoroutine = false;
     }
 }

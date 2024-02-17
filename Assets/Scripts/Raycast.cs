@@ -3,74 +3,57 @@ using UnityEngine;
 public class Raycast : MonoBehaviour
 {
     public float laserLength, offset;
-    public Vector3 posOfFrente, posOfAtras, posOfDireita, posOfEsquerda;
+    public Vector3 posOf;
     public LayerMask layerMask;
 
-    private void FixedUpdate() => Raycasts();
+    private void FixedUpdate() => Raycast3D(Vector3.forward);
 
-    private void Raycasts()
+    private void Raycast3D(Vector3 direction)
     {
-        Raycast3D(Vector3.forward, "frente");
-        Raycast3D(Vector3.back, "atras");
-        Raycast3D(Vector3.right, "direita");
-        Raycast3D(Vector3.left, "esquerda");
-    }
+        Vector3 fixedPosition = FixPosition();
 
-    private void Raycast3D(Vector3 direction, string direcao)
-    {
-        Vector3 fixedPosition = FixPosition(direcao);
-
-        if (Physics.Raycast(fixedPosition, transform.TransformDirection(direction), out RaycastHit hit, laserLength, layerMask))
+        if (Physics.Raycast(fixedPosition, transform.TransformDirection(direction), out RaycastHit hit, Mathf.Infinity, layerMask))
         {
-            if (hit.collider.CompareTag("parede"))
-            {
-                switch (direcao)
-                {
-                    case "frente": posOfFrente = GetPositionOf(hit.collider.transform, direcao); break;
-                    case "atras": posOfAtras = GetPositionOf(hit.collider.transform, direcao); break;
-                    case "direita": posOfDireita = GetPositionOf(hit.collider.transform, direcao); break;
-                    case "esquerda": posOfEsquerda = GetPositionOf(hit.collider.transform, direcao); break;
-                }
-            }
+            if (hit.collider.CompareTag("parede")) posOf = GetPositionOf(direction, hit.distance);
 
-            Debug.DrawRay(fixedPosition, transform.TransformDirection(direction) * laserLength, Color.green);
+            Debug.DrawRay(fixedPosition, transform.TransformDirection(direction) * hit.distance, Color.green);
         }
         else Debug.DrawRay(fixedPosition, transform.TransformDirection(direction) * laserLength, Color.red);
     }
 
-    private Vector3 FixPosition(string param)
+    private Vector3 FixPosition()
     {
         Vector3 temp = transform.position;
 
-        switch (param)
+        float rotacaoY = transform.eulerAngles.y;
+
+        switch (Mathf.Round(rotacaoY))
         {
-            case "frente": temp.z += offset; break;
-            case "atras": temp.z -= offset; break;
-            case "direita": temp.x += offset; break;
-            case "esquerda": temp.x -= offset; break;
+            case 0f: temp.z += offset; break;
+            case 90f: temp.x += offset; break;
+            case 180f: temp.z -= offset; break;
+            case 270f: temp.x -= offset; break;
         }
 
         return temp;
     }
 
-    private Vector3 GetPositionOf(Transform objeto, string direcao)
+    private Vector3 GetPositionOf(Vector3 direcao, float distancia)
     {
         Vector3 position = new();
+        float offset = 0.5f;
 
-        switch (direcao)
+        if (direcao == Vector3.forward || direcao == Vector3.back)
         {
-            case "frente":
-            case "atras":
-                {
-                    position = new(transform.position.x, 0f, objeto.position.z);
-                    break;
-                }
-            case "direita":
-            case "esquerda":
-                {
-                    position = new(objeto.position.x, 0f, transform.position.z);
-                    break;
-                }
+            float rotacaoY = transform.eulerAngles.y;
+
+            switch (Mathf.Round(rotacaoY))
+            {
+                case 0f: position = new(transform.position.x, 0f, transform.position.z + distancia - offset); break;
+                case 90f: position = new(transform.position.x + distancia - offset, 0f, transform.position.z); break;
+                case 180f: position = new(transform.position.x, 0f, transform.position.z - distancia + offset); break;
+                case 270f: position = new(transform.position.x - distancia + offset, 0f, transform.position.z); break;
+            }
         }
 
         return position;

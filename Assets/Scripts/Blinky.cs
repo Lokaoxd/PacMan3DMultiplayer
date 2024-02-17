@@ -1,12 +1,14 @@
 using System.Collections;
+
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Blinky : MonoBehaviour
 {
+    [SerializeField] Transform targetInicial;
     NavMeshAgent inimigo;
     Transform player;
-    Vector3 pointTarget = new(13.76f, 1.048f, 13.66f);
+    Vector3 pointTarget;
     bool block = true;
 
     private void Awake()
@@ -28,6 +30,8 @@ public class Blinky : MonoBehaviour
 
     private IEnumerator Coroutine()
     {
+        pointTarget = targetInicial.position;
+
         for (int i = 0; i < 20; i++)
         {
             if (transform.position != pointTarget) yield return new WaitForSeconds(0.25f);

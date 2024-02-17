@@ -9,5 +9,5 @@ public class Pinky : MonoBehaviour
     private void Awake() => inimigo = GetComponent<NavMeshAgent>();
 
 
-    private void Update() => inimigo.SetDestination(player.GetComponent<Raycast>().posOfFrente);
+    private void Update() => inimigo.SetDestination(player.GetComponent<Raycast>().posOf);
 }
